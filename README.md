@@ -94,6 +94,9 @@ tvarkarasciai.ku.lt ──(mobile API)──▶ KULendar ──▶ Android calen
 - to `master`: a release `v<baseVersion>.<run>`, marked as the latest release;
 - to `development`: a pre-release `v<baseVersion>.<run>-dev`.
 
+Pushing a new branch that points at an already pushed commit starts no run, because GitHub reports it only as a
+branch creation. Push a new commit, or start the workflow by hand under **Actions → Release → Run workflow**.
+
 `<run>` is the workflow's run number, shared by both branches, and the version code is `100 + <run>`, so every new
 build can update every older one. `kulendar.baseVersion` in `gradle.properties` sets the first part of the version.
 Each release contains the signed APK, `kulendar-update.json` and notes listing the commits since the previous release

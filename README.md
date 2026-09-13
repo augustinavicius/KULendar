@@ -20,7 +20,9 @@ Google Calendar of your choice. It runs in the background, survives reboots and 
 ## Setting up the phone
 
 1. Make sure your Google account is added to the phone and **Calendar sync is on** for it
-   (Settings → Passwords & accounts → your Google account → Account sync).
+   (Settings → Passwords & accounts → your Google account → Account sync). If the Google Calendar app is installed,
+   also check that **Share Google Calendar data with other apps** is on (Google Calendar → Settings → General). With
+   it off, Google Calendar hides your calendars from other apps and doesn't upload what they add.
 2. Download the APK of the [latest release](https://github.com/augustinavicius/KULendar/releases/latest) and install it.
 3. Sign in with your university account.
 4. Allow calendar access and choose the Google calendar to sync into.
@@ -165,8 +167,13 @@ Install the APK with `adb install app/build/outputs/apk/release/app-release.apk`
 
 ## Troubleshooting
 
-- **Events are on the phone but not in Google Calendar on the web.** Calendar sync is off for the Google
-  account. The app warns about this under Google Calendar.
+- **Events don't reach Google Calendar on the web.** They only upload while auto-sync and the account's Calendar sync
+  are on and, with the Google Calendar app installed, while **Share Google Calendar data with other apps** is on
+  (Google Calendar → Settings → General). Android hides an account's sync settings from other apps, so under
+  Google Calendar press **Check account** and pick the account: KULendar then shows which setting is off and can
+  turn sync back on.
+- **Your Google calendars are missing from the list.** Turn on **Share Google Calendar data with other apps** in
+  Google Calendar (Settings → General) and check that Calendar sync is on for the account.
 - **"The timetable website returned unexpected data".** The university changed its API. Nothing is removed from
   your calendar in that case; the app needs an update.
 - **Sync is late.** Open the app and fix everything marked under **Uninterrupted sync**.

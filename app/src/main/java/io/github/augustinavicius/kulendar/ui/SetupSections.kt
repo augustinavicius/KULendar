@@ -248,6 +248,9 @@ fun CalendarSection(
     onChooseCalendar: (DeviceCalendar) -> Unit,
     onShowAllCalendars: (Boolean) -> Unit,
     onOpenSyncSettings: () -> Unit,
+    onTurnOnSync: () -> Unit,
+    onCheckAccount: () -> Unit,
+    onOpenGoogleCalendar: () -> Unit,
 ) {
     var picking by rememberSaveable { mutableStateOf(false) }
     val device = state.device
@@ -291,11 +294,23 @@ fun CalendarSection(
                 }
                 val notice = state.calendarSyncNotice
                 when {
+                    state.selectedCalendarMissing && state.settings.calendar?.accountType == DeviceCalendar.GOOGLE_ACCOUNT_TYPE -> {
+                        // Turning off Google Calendar's data sharing removes its calendars from the phone's calendar storage.
+                        WarningText(stringResource(R.string.calendar_missing_google))
+                        OpenGoogleCalendarButton(onOpenGoogleCalendar)
+                    }
                     state.selectedCalendarMissing -> WarningText(stringResource(R.string.calendar_missing))
                     selected == null -> Unit
                     !selected.syncEvents -> WarningText(stringResource(R.string.calendar_not_synced))
                     selected.isLocal -> WarningText(stringResource(R.string.calendar_not_google))
-                    notice != null -> CalendarSyncNoticeText(notice, selected.accountName, onOpenSyncSettings)
+                    notice != null -> CalendarSyncNoticeText(
+                        notice = notice,
+                        calendar = selected,
+                        onTurnOnSync = onTurnOnSync,
+                        onCheckAccount = onCheckAccount,
+                        onOpenGoogleCalendar = onOpenGoogleCalendar,
+                        onOpenSyncSettings = onOpenSyncSettings,
+                    )
                 }
             }
         }
@@ -307,6 +322,7 @@ fun CalendarSection(
             showAll = state.settings.showAllCalendars,
             selectedId = state.settings.calendar?.id,
             onShowAll = onShowAllCalendars,
+            onOpenGoogleCalendar = onOpenGoogleCalendar,
             onSelect = {
                 picking = false
                 onChooseCalendar(it)
@@ -322,6 +338,7 @@ private fun CalendarPickerDialog(
     showAll: Boolean,
     selectedId: Long?,
     onShowAll: (Boolean) -> Unit,
+    onOpenGoogleCalendar: () -> Unit,
     onSelect: (DeviceCalendar) -> Unit,
     onDismiss: () -> Unit,
 ) {
@@ -331,8 +348,9 @@ private fun CalendarPickerDialog(
         title = { Text(stringResource(R.string.choose_calendar_title)) },
         text = {
             Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                if (visible.isEmpty()) {
+                if (calendars.none { it.isGoogle }) {
                     Text(stringResource(R.string.choose_calendar_empty), style = MaterialTheme.typography.bodyMedium)
+                    OpenGoogleCalendarButton(onOpenGoogleCalendar)
                 }
                 LazyColumn(modifier = Modifier.weight(1f, fill = false)) {
                     visible.groupBy { it.accountName }.forEach { (accountName, accountCalendars) ->

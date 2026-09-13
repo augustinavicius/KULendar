@@ -10,6 +10,7 @@ import android.content.ContentValues
 import android.content.Context
 import android.content.pm.PackageManager
 import android.database.Cursor
+import android.os.Bundle
 import android.provider.CalendarContract
 import android.provider.CalendarContract.Calendars
 import android.provider.CalendarContract.Events
@@ -38,6 +39,8 @@ data class DeviceCalendar(
 
     /** A calendar that exists only on this phone, with no account to upload to. */
     val isLocal: Boolean get() = accountType == LOCAL_ACCOUNT_TYPE
+
+    val account: Account get() = Account(accountName, accountType)
 
     companion object {
         const val GOOGLE_ACCOUNT_TYPE = "com.google"
@@ -78,23 +81,48 @@ class CalendarRepository(context: Context) {
     }
 
     /**
-     * Why Android will not upload this calendar's changes, if that is known.
-     *
-     * Android reveals an account's own sync setting only to apps that can see the account, and reports it as off
-     * to everyone else. KULendar usually cannot see Google accounts, so that setting only counts for visible
-     * accounts; [pendingUploads] shows whether events actually leave the phone.
+     * Whether KULendar can see the calendar's account. Android reveals an account's own sync settings only to apps
+     * that can see the account, and reports them as off to everyone else. KULendar cannot see Google accounts until
+     * the user picks the account in Android's account chooser.
      */
+    fun canSeeAccount(calendar: DeviceCalendar): Boolean = !calendar.isLocal && runCatching {
+        calendar.account in accountManager.getAccountsByType(calendar.accountType)
+    }.getOrDefault(false)
+
+    /** Why Android will not upload this calendar's changes, if that is known; [pendingUploads] shows whether events actually leave the phone. */
     fun syncOffReason(calendar: DeviceCalendar): SyncOffReason? {
         if (calendar.isLocal) return null
         return runCatching {
-            val account = Account(calendar.accountName, calendar.accountType)
-            when {
-                !ContentResolver.getMasterSyncAutomatically() -> SyncOffReason.AUTO_SYNC_OFF
-                account in accountManager.getAccountsByType(calendar.accountType) &&
-                    !ContentResolver.getSyncAutomatically(account, CalendarContract.AUTHORITY) -> SyncOffReason.ACCOUNT_SYNC_OFF
-                else -> null
-            }
+            val visible = canSeeAccount(calendar)
+            detectSyncOff(
+                autoSync = ContentResolver.getMasterSyncAutomatically(),
+                accountVisible = visible,
+                syncable = if (visible) ContentResolver.getIsSyncable(calendar.account, CalendarContract.AUTHORITY) else SYNCABLE_UNKNOWN,
+                accountSync = visible && ContentResolver.getSyncAutomatically(calendar.account, CalendarContract.AUTHORITY),
+            )
         }.getOrNull()
+    }
+
+    /**
+     * Turns the setting behind [reason] back on and returns whether that worked. An account that isn't synced with the
+     * phone at all is left alone: for Google accounts that is the Google Calendar app's data-sharing setting, which
+     * only the user should change, in that app.
+     */
+    fun turnOnSync(calendar: DeviceCalendar, reason: SyncOffReason): Boolean = when (reason) {
+        SyncOffReason.AUTO_SYNC_OFF -> runCatching { ContentResolver.setMasterSyncAutomatically(true) }.isSuccess
+        SyncOffReason.ACCOUNT_SYNC_OFF -> canSeeAccount(calendar) && runCatching {
+            ContentResolver.setSyncAutomatically(calendar.account, CalendarContract.AUTHORITY, true)
+        }.isSuccess
+        SyncOffReason.NOT_SYNCABLE -> false
+    }
+
+    /** Asks the calendar's account to upload KULendar's changes soon. Android ignores this for accounts KULendar cannot see. */
+    fun requestUpload(calendar: DeviceCalendar) {
+        if (!canSeeAccount(calendar)) return
+        runCatching {
+            val extras = Bundle().apply { putBoolean(ContentResolver.SYNC_EXTRAS_EXPEDITED, true) }
+            ContentResolver.requestSync(calendar.account, CalendarContract.AUTHORITY, extras)
+        }
     }
 
     /** How many KULendar events in the calendar carry changes that the account has not uploaded yet. */
@@ -188,6 +216,7 @@ class CalendarRepository(context: Context) {
         val PERMISSIONS = arrayOf(Manifest.permission.READ_CALENDAR, Manifest.permission.WRITE_CALENDAR)
 
         private const val BATCH_SIZE = 100
+        private const val SYNCABLE_UNKNOWN = -1
 
         private val CALENDAR_PROJECTION = arrayOf(
             Calendars._ID,

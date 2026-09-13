@@ -66,6 +66,7 @@ class SyncEngine(
             allowRemovals = download.complete,
         )
         calendars.apply(calendar.id, plan)
+        if (plan.inserts.isNotEmpty() || plan.updates.isNotEmpty() || plan.deletes.isNotEmpty()) calendars.requestUpload(calendar)
         return SyncRecord(
             finishedAt = clock.millis(),
             trigger = trigger,

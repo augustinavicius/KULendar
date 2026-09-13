@@ -58,6 +58,7 @@ data class DeviceState(
     val calendars: List<DeviceCalendar> = emptyList(),
     val selectedSyncOff: SyncOffReason? = null,
     val selectedPendingUploads: Int = 0,
+    val selectedAccountVisible: Boolean = false,
     val health: BackgroundHealth = BackgroundHealth(),
 )
 
@@ -80,7 +81,9 @@ data class MainUiState(
     val selectedCalendarMissing: Boolean
         get() = device.loaded && device.hasCalendarPermission && settings.calendar != null && selectedCalendar == null
     val calendarSyncNotice: CalendarSyncNotice?
-        get() = selectedCalendar?.let { calendarSyncNotice(it, device.selectedSyncOff, device.selectedPendingUploads) }
+        get() = selectedCalendar?.let {
+            calendarSyncNotice(it, device.selectedSyncOff, device.selectedPendingUploads, device.selectedAccountVisible)
+        }
     val isConfigured: Boolean
         get() = account != null && settings.calendar != null
 }
@@ -122,6 +125,7 @@ class MainViewModel(private val app: KulendarApp) : ViewModel() {
                 calendars = available,
                 selectedSyncOff = selected?.let { calendars.syncOffReason(it) },
                 selectedPendingUploads = selected?.let { pendingUploads(it) } ?: 0,
+                selectedAccountVisible = selected?.let { calendars.canSeeAccount(it) } ?: false,
                 health = BackgroundHealthChecker.check(app),
             )
         }
@@ -242,6 +246,14 @@ class MainViewModel(private val app: KulendarApp) : ViewModel() {
 
     fun syncNow() {
         SyncScheduler.syncNow(app, SyncTrigger.MANUAL)
+    }
+
+    /** Turns back on the setting that stops the selected calendar's uploads; false if the user has to do it in the settings. */
+    fun turnOnCalendarSync(): Boolean {
+        val current = state.value
+        val calendar = current.selectedCalendar ?: return false
+        val reason = current.device.selectedSyncOff ?: return false
+        return container.calendars.turnOnSync(calendar, reason).also { refreshDeviceState() }
     }
 
     fun removeSyncedEvents() {

@@ -77,6 +77,8 @@ fun MainScreen(
         ActivityResultContracts.StartActivityForResult(),
     ) { viewModel.refreshDeviceState() }
 
+    val accountChooserDescription = state.selectedCalendar?.let { stringResource(R.string.account_chooser_description, it.accountName) }
+
     val snackbarHostState = remember { SnackbarHostState() }
     val message = state.transient.message
     if (message is UiMessage.EventsRemoved) {
@@ -122,6 +124,19 @@ fun MainScreen(
                     onChooseCalendar = viewModel::requestCalendarChange,
                     onShowAllCalendars = viewModel::setShowAllCalendars,
                     onOpenSyncSettings = { context.startActivitySafely(BackgroundHealthChecker.syncSettingsIntent()) },
+                    onTurnOnSync = {
+                        if (!viewModel.turnOnCalendarSync()) context.startActivitySafely(BackgroundHealthChecker.syncSettingsIntent())
+                    },
+                    onCheckAccount = {
+                        val calendar = state.selectedCalendar
+                        if (calendar != null && accountChooserDescription != null) {
+                            runCatching { settingsLauncher.launch(accountChooserIntent(calendar, accountChooserDescription)) }
+                                .onFailure { context.startActivitySafely(BackgroundHealthChecker.syncSettingsIntent()) }
+                        }
+                    },
+                    onOpenGoogleCalendar = {
+                        context.startActivitySafely(googleCalendarSettingsIntent(), fallback = googleCalendarLaunchIntent(context))
+                    },
                 )
             }
             item(key = "range") {

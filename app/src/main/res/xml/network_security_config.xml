@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<network-security-config>
+    <base-config cleartextTrafficPermitted="false" />
+
+    <!--
+      tvarkarasciai.ku.lt does not send its intermediate certificate, and Android, unlike desktop
+      browsers, does not download missing intermediates. The GEANT intermediates issued by HARICA are
+      therefore trusted in addition to the system roots, for this host only.
+    -->
+    <domain-config cleartextTrafficPermitted="false">
+        <domain includeSubdomains="false">tvarkarasciai.ku.lt</domain>
+        <trust-anchors>
+            <certificates src="system" />
+            <certificates src="@raw/geant_tls_rsa_1" />
+            <certificates src="@raw/geant_tls_ecc_1" />
+        </trust-anchors>
+    </domain-config>
+</network-security-config>

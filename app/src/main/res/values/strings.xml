@@ -1,0 +1,219 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name" translatable="false">KULendar</string>
+
+    <!-- Generic actions -->
+    <string name="action_cancel">Cancel</string>
+    <string name="action_ok">OK</string>
+    <string name="action_allow">Allow</string>
+    <string name="action_open_settings">Open settings</string>
+    <string name="action_turn_off">Turn off</string>
+    <string name="action_change">Change</string>
+    <string name="action_remove">Remove</string>
+    <string name="action_keep">Keep</string>
+    <string name="action_learn_more">Learn more</string>
+
+    <!-- Status card -->
+    <string name="action_sync_now">Sync now</string>
+    <string name="status_syncing">Syncing…</string>
+    <string name="status_queued">Sync queued, waiting for a connection…</string>
+    <string name="status_never_synced">Not synced yet</string>
+    <string name="setup_hint">Sign in and choose a calendar to start syncing.</string>
+    <string name="last_sync_at">Last sync: %1$s</string>
+    <string name="last_success_at">Last successful sync: %1$s</string>
+    <string name="sync_summary">Lectures in range: %1$d · added: %2$d · updated: %3$d · removed: %4$d</string>
+    <string name="sync_incomplete_note">The timetable changed during the download, so removals were postponed to the next sync.</string>
+    <string name="next_sync_at">Next automatic sync: %1$s</string>
+    <string name="auto_sync_is_off">Automatic sync is off</string>
+
+    <!-- Sync results -->
+    <string name="status_success">Up to date</string>
+    <string name="status_not_signed_in">Sign in to your university account.</string>
+    <string name="status_no_calendar">Choose a calendar to sync to.</string>
+    <string name="status_invalid_credentials">The university rejected your username or password. Sign out and sign in again.</string>
+    <string name="status_calendar_missing">The selected calendar no longer exists. Choose another one.</string>
+    <string name="status_no_permission">Calendar access was revoked. Allow it again.</string>
+    <string name="status_protocol_error">The timetable website returned unexpected data. The app may need an update.</string>
+    <string name="status_network_error">Could not reach tvarkarasciai.ku.lt. Will try again.</string>
+    <string name="status_server_error">The university server is having trouble. Will try again.</string>
+    <string name="status_failed">Sync failed. Will try again.</string>
+
+    <!-- University account -->
+    <string name="section_account">University account</string>
+    <string name="section_account_hint">Your login for tvarkarasciai.ku.lt</string>
+    <string name="field_username">Username</string>
+    <string name="field_username_hint">vardenis.pavardenis</string>
+    <string name="field_password">Password</string>
+    <string name="action_show_password">Show</string>
+    <string name="action_hide_password">Hide</string>
+    <string name="action_sign_in">Sign in</string>
+    <string name="action_sign_out">Sign out</string>
+    <string name="signed_in_as">Signed in as %1$s</string>
+    <string name="credentials_storage_note">Your password is encrypted on this phone and only sent to tvarkarasciai.ku.lt.</string>
+    <string name="error_invalid_credentials">Incorrect username or password.</string>
+    <string name="error_network">Could not reach tvarkarasciai.ku.lt. Check your connection.</string>
+    <string name="error_server">The university server is having trouble. Try again later.</string>
+    <string name="error_unknown">Sign-in failed: %1$s</string>
+    <string name="sign_out_confirm_title">Sign out?</string>
+    <string name="sign_out_confirm_text">Syncing stops. Events already in your calendar stay there.</string>
+
+    <!-- Calendar -->
+    <string name="section_calendar">Google Calendar</string>
+    <string name="section_calendar_hint">Lectures are added to this calendar and reach Google Calendar through the Google account on this phone.</string>
+    <string name="calendar_permission_needed">KULendar needs access to your calendars to add lectures.</string>
+    <string name="calendar_permission_denied">Calendar access was denied. Allow it in the app settings.</string>
+    <string name="action_grant_access">Allow access</string>
+    <string name="calendar_none_selected">No calendar selected</string>
+    <string name="action_choose_calendar">Choose calendar</string>
+    <string name="calendar_missing">The selected calendar no longer exists. Choose another one.</string>
+    <string name="calendar_sync_off">Calendar sync is off for %1$s, so events won\'t reach Google Calendar.</string>
+    <string name="action_open_sync_settings">Sync settings</string>
+    <string name="calendar_not_synced">This calendar is not synced to this phone. Turn it on in the Google Calendar app settings.</string>
+    <string name="calendar_not_google">This calendar doesn\'t belong to a Google account, so its events stay on this phone.</string>
+    <string name="choose_calendar_title">Choose calendar</string>
+    <string name="choose_calendar_empty">No Google calendars you can edit were found. Add your Google account in the phone settings and turn on calendar sync.</string>
+    <string name="choose_calendar_tip">Tip: create a separate calendar such as “University” at calendar.google.com to keep lectures apart.</string>
+    <string name="show_all_calendars">Show calendars of other accounts</string>
+    <string name="move_events_title">Switch calendar?</string>
+    <string name="move_events_text">Events KULendar added to “%2$s”: %1$d. Remove them from there?</string>
+
+    <!-- Sync range -->
+    <string name="section_range">Sync range</string>
+    <string name="range_past">Past</string>
+    <string name="range_future">Future</string>
+    <string name="range_summary">Lectures from %1$s to %2$s</string>
+    <string name="range_note">Events outside the range stay in your calendar.</string>
+    <string name="range_past_title">How far back to sync</string>
+    <string name="range_future_title">How far ahead to sync</string>
+    <string name="range_none">None</string>
+    <string name="range_1_week">1 week</string>
+    <string name="range_2_weeks">2 weeks</string>
+    <string name="range_1_month">1 month</string>
+    <string name="range_2_months">2 months</string>
+    <string name="range_3_months">3 months</string>
+    <string name="range_4_months">4 months</string>
+    <string name="range_6_months">6 months</string>
+    <string name="range_1_year">1 year</string>
+    <string name="range_custom">Custom…</string>
+    <string name="range_custom_title">Number of days</string>
+    <string name="range_custom_label">Days (0–%1$d)</string>
+    <plurals name="days_count">
+        <item quantity="one">%d day</item>
+        <item quantity="other">%d days</item>
+    </plurals>
+
+    <!-- Background sync -->
+    <string name="section_auto_sync">Background sync</string>
+    <string name="auto_sync">Sync automatically</string>
+    <string name="auto_sync_hint">Keeps your calendar up to date even when the app is closed.</string>
+    <string name="sync_interval">Frequency</string>
+    <string name="sync_interval_title">How often to sync</string>
+    <string name="interval_15_min">Every 15 minutes</string>
+    <string name="interval_30_min">Every 30 minutes</string>
+    <string name="interval_1_hour">Every hour</string>
+    <string name="interval_2_hours">Every 2 hours</string>
+    <string name="interval_3_hours">Every 3 hours</string>
+    <string name="interval_6_hours">Every 6 hours</string>
+    <string name="interval_12_hours">Every 12 hours</string>
+    <string name="interval_24_hours">Once a day</string>
+
+    <!-- Reliability -->
+    <string name="section_reliability">Uninterrupted sync</string>
+    <string name="section_reliability_hint">Android delays or stops background work to save battery. Fix the items marked below so syncing never stops.</string>
+    <string name="battery_title">Battery optimization</string>
+    <string name="battery_ok">Unrestricted, syncs run on time</string>
+    <string name="battery_bad">Optimized, syncs may be delayed for hours</string>
+    <string name="restricted_title">Background usage</string>
+    <string name="restricted_bad">Restricted, background syncing is blocked</string>
+    <string name="hibernation_title">Pause app activity if unused</string>
+    <string name="hibernation_ok">Off, permissions are kept</string>
+    <string name="hibernation_bad">On, Android may revoke calendar access if you don\'t open the app for a while</string>
+    <string name="notifications_title">Notifications</string>
+    <string name="notifications_ok">Allowed, you\'ll hear when syncing needs attention</string>
+    <string name="notifications_bad">Off, sync problems would go unnoticed</string>
+    <string name="oem_tip">%1$s phones may stop background apps despite these settings. dontkillmyapp.com lists the extra steps.</string>
+
+    <!-- History -->
+    <string name="section_history">Recent syncs</string>
+    <string name="history_empty">No syncs yet</string>
+    <string name="trigger_periodic">Automatic</string>
+    <string name="trigger_manual">Manual</string>
+    <string name="trigger_settings_changed">Settings changed</string>
+    <string name="trigger_boot">After restart</string>
+    <string name="trigger_app_updated">After app update</string>
+    <string name="history_counts">added: %1$d · updated: %2$d · removed: %3$d</string>
+
+    <!-- Maintenance -->
+    <string name="section_maintenance">Clean up</string>
+    <string name="remove_events_hint">Deletes every event KULendar added to the selected calendar.</string>
+    <string name="action_remove_events">Remove synced events</string>
+    <string name="remove_events_confirm_title">Remove synced events?</string>
+    <string name="remove_events_confirm_text">This deletes every KULendar event from “%1$s”. Automatic sync adds them back unless you turn it off.</string>
+    <plurals name="events_removed">
+        <item quantity="one">Removed %d event</item>
+        <item quantity="other">Removed %d events</item>
+    </plurals>
+
+    <!-- Calendar event texts -->
+    <string name="event_lecturer">Lecturer</string>
+    <string name="event_responsible">Responsible</string>
+    <string name="event_room">Room</string>
+    <string name="event_online_meeting">Online meeting</string>
+    <string name="event_online">Online</string>
+    <string name="event_not_approved">Not approved yet</string>
+    <string name="event_synced_by">Synced by KULendar</string>
+
+    <!-- Notifications -->
+    <string name="channel_problems">Sync problems</string>
+    <string name="channel_problems_description">Tells you when syncing needs your attention</string>
+    <string name="channel_progress">Sync in progress</string>
+    <string name="notification_problem_title">KULendar can\'t sync</string>
+    <string name="notification_syncing">Syncing timetable…</string>
+
+    <!-- App updates -->
+    <string name="section_updates">App updates</string>
+    <string name="update_installed_version">Version %1$s (%2$s)</string>
+    <string name="update_build_stable">stable</string>
+    <string name="update_build_development">development</string>
+    <string name="update_build_local">local build</string>
+    <string name="update_built_from">Built from commit %1$s</string>
+    <string name="update_channel">Update channel</string>
+    <string name="update_channel_stable">Stable</string>
+    <string name="update_channel_development">Development</string>
+    <string name="update_channel_stable_hint">Releases of the master branch.</string>
+    <string name="update_channel_development_hint">Every build of the development branch, plus stable releases when they are newer. These builds may be unfinished.</string>
+    <string name="update_auto_install">Install updates automatically</string>
+    <string name="update_auto_install_hint">Downloads new versions in the background while you aren\'t using the app. Android may ask you to confirm.</string>
+    <string name="update_permission_title">Installing updates</string>
+    <string name="update_permission_text">Not allowed yet, so KULendar can\'t install its updates</string>
+    <string name="update_checking">Checking for updates…</string>
+    <string name="update_downloading">Downloading %1$s… %2$d%%</string>
+    <string name="update_installing">Installing %1$s…</string>
+    <string name="update_available">Version %1$s is available</string>
+    <string name="update_install">Install</string>
+    <string name="update_retry">Try again</string>
+    <string name="update_whats_new">What\'s new</string>
+    <string name="update_check">Check for updates</string>
+    <string name="update_open_releases">Open releases</string>
+    <string name="update_never_checked">Not checked yet</string>
+    <string name="update_up_to_date">Up to date · checked %1$s</string>
+    <string name="update_last_check_failed">The last check failed · %1$s</string>
+    <string name="update_ahead_of_channel">This build is newer than the latest release on this channel (%1$s), so the next newer release will be installed.</string>
+    <string name="update_error_network">Could not reach GitHub. Check your connection.</string>
+    <string name="update_error_rate_limited">GitHub is limiting requests. Try again later.</string>
+    <string name="update_error_server">GitHub is having trouble. Try again later.</string>
+    <string name="update_error_protocol">The release information could not be read.</string>
+    <string name="update_error_verification">The downloaded update failed verification and was discarded.</string>
+    <string name="update_error_signature">This copy of KULendar wasn\'t installed from a GitHub release, so it can\'t update itself. Uninstall it and install the latest release once.</string>
+    <string name="update_error_not_allowed">Allow KULendar to install updates first.</string>
+    <string name="update_error_install">Android could not install the update.</string>
+    <string name="channel_updates">App updates</string>
+    <string name="channel_updates_description">New versions of KULendar</string>
+    <string name="notification_update_available">KULendar %1$s is available</string>
+    <string name="notification_update_available_text">Open KULendar to install it.</string>
+    <string name="notification_update_confirm">Tap to install KULendar %1$s</string>
+    <string name="notification_update_confirm_text">Android needs your confirmation.</string>
+    <string name="notification_update_failed">KULendar %1$s could not be installed</string>
+    <string name="notification_update_failed_text">Open KULendar to try again.</string>
+    <string name="notification_update_installed">KULendar updated to %1$s</string>
+</resources>

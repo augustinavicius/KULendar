@@ -1,0 +1,125 @@
+name: Release
+
+# Every push to master publishes a stable release; every push to development publishes a pre-release.
+# The in-app updater reads these releases, so version codes must only ever grow: they are derived from
+# this workflow's run number, which is shared by both branches.
+on:
+  push:
+    branches: [master, development]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: release-${{ github.ref_name }}
+  cancel-in-progress: false
+
+jobs:
+  release:
+    name: Build and publish
+    if: github.ref_name == 'master' || github.ref_name == 'development'
+    runs-on: ubuntu-latest
+    env:
+      VERSION_CODE_OFFSET: 100
+    steps:
+      - name: Check out
+        uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+
+      - name: Set up JDK
+        uses: actions/setup-java@v6
+        with:
+          distribution: temurin
+          java-version: 21
+          cache: gradle
+
+      - name: Install Android SDK packages
+        run: |
+          sdkmanager="$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager"
+          yes | "$sdkmanager" --licenses > /dev/null
+          "$sdkmanager" --install "platforms;android-37.0" "build-tools;37.0.0" > /dev/null
+
+      - name: Determine version
+        id: version
+        run: |
+          base="$(sed -n 's/^kulendar.baseVersion=//p' gradle.properties)"
+          if [ "$GITHUB_REF_NAME" = master ]; then
+            channel=stable
+            name="$base.$GITHUB_RUN_NUMBER"
+          else
+            channel=development
+            name="$base.$GITHUB_RUN_NUMBER-dev"
+          fi
+          {
+            echo "channel=$channel"
+            echo "name=$name"
+            echo "code=$((VERSION_CODE_OFFSET + GITHUB_RUN_NUMBER))"
+            echo "tag=v$name"
+          } >> "$GITHUB_OUTPUT"
+
+      - name: Restore signing key
+        env:
+          KEYSTORE_BASE64: ${{ secrets.KULENDAR_KEYSTORE_BASE64 }}
+        run: |
+          if [ -z "$KEYSTORE_BASE64" ]; then
+            echo "::error::Repository secret KULENDAR_KEYSTORE_BASE64 is not set. See the Releases section of the README."
+            exit 1
+          fi
+          printf '%s' "$KEYSTORE_BASE64" | base64 --decode > "$RUNNER_TEMP/release.jks"
+          echo "KULENDAR_KEYSTORE_FILE=$RUNNER_TEMP/release.jks" >> "$GITHUB_ENV"
+
+      - name: Run unit tests
+        run: ./gradlew testDebugUnitTest --console=plain
+
+      - name: Build release APK
+        env:
+          KULENDAR_KEYSTORE_PASSWORD: ${{ secrets.KULENDAR_KEYSTORE_PASSWORD }}
+          KULENDAR_KEY_ALIAS: ${{ secrets.KULENDAR_KEY_ALIAS }}
+          KULENDAR_KEY_PASSWORD: ${{ secrets.KULENDAR_KEY_PASSWORD }}
+          VERSION_CODE: ${{ steps.version.outputs.code }}
+          VERSION_NAME: ${{ steps.version.outputs.name }}
+          CHANNEL: ${{ steps.version.outputs.channel }}
+          REPOSITORY: ${{ github.repository }}
+        run: |
+          ./gradlew assembleRelease --console=plain \
+            -Pkulendar.requireReleaseSigning=true \
+            -Pkulendar.versionCode="$VERSION_CODE" \
+            -Pkulendar.versionName="$VERSION_NAME" \
+            -Pkulendar.channel="$CHANNEL" \
+            -Pkulendar.commit="$GITHUB_SHA" \
+            -Pkulendar.updateRepository="$REPOSITORY"
+
+      - name: Prepare release files
+        env:
+          CHANNEL: ${{ steps.version.outputs.channel }}
+          VERSION_NAME: ${{ steps.version.outputs.name }}
+          VERSION_CODE: ${{ steps.version.outputs.code }}
+          TAG: ${{ steps.version.outputs.tag }}
+          APK: app/build/outputs/apk/release/app-release.apk
+          OUT: dist
+        run: bash .github/scripts/prepare-release.sh
+
+      - name: Publish release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          CHANNEL: ${{ steps.version.outputs.channel }}
+          VERSION_NAME: ${{ steps.version.outputs.name }}
+          TAG: ${{ steps.version.outputs.tag }}
+        run: |
+          if gh release view "$TAG" > /dev/null 2>&1; then
+            # A re-run of the same workflow run: refresh the assets of the existing release.
+            gh release upload "$TAG" dist/*.apk dist/kulendar-update.json --clobber
+            exit 0
+          fi
+          if [ "$CHANNEL" = stable ]; then
+            flags=(--latest)
+          else
+            flags=(--prerelease --latest=false)
+          fi
+          gh release create "$TAG" dist/*.apk dist/kulendar-update.json \
+            --target "$GITHUB_SHA" \
+            --title "KULendar $VERSION_NAME" \
+            --notes-file dist/notes.md \
+            "${flags[@]}"

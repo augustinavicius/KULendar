@@ -1,0 +1,221 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Generic actions -->
+    <string name="action_cancel">Atšaukti</string>
+    <string name="action_ok">Gerai</string>
+    <string name="action_allow">Leisti</string>
+    <string name="action_open_settings">Atidaryti nustatymus</string>
+    <string name="action_turn_off">Išjungti</string>
+    <string name="action_change">Keisti</string>
+    <string name="action_remove">Pašalinti</string>
+    <string name="action_keep">Palikti</string>
+    <string name="action_learn_more">Sužinoti daugiau</string>
+
+    <!-- Status card -->
+    <string name="action_sync_now">Sinchronizuoti dabar</string>
+    <string name="status_syncing">Sinchronizuojama…</string>
+    <string name="status_queued">Sinchronizavimas laukia interneto ryšio…</string>
+    <string name="status_never_synced">Dar nesinchronizuota</string>
+    <string name="setup_hint">Prisijunkite ir pasirinkite kalendorių, kad pradėtumėte sinchronizuoti.</string>
+    <string name="last_sync_at">Paskutinis sinchronizavimas: %1$s</string>
+    <string name="last_success_at">Paskutinis sėkmingas sinchronizavimas: %1$s</string>
+    <string name="sync_summary">Paskaitų intervale: %1$d · pridėta: %2$d · atnaujinta: %3$d · pašalinta: %4$d</string>
+    <string name="sync_incomplete_note">Tvarkaraštis pasikeitė siunčiant duomenis, todėl įvykių šalinimas atidėtas iki kito sinchronizavimo.</string>
+    <string name="next_sync_at">Kitas automatinis sinchronizavimas: %1$s</string>
+    <string name="auto_sync_is_off">Automatinis sinchronizavimas išjungtas</string>
+
+    <!-- Sync results -->
+    <string name="status_success">Kalendorius atnaujintas</string>
+    <string name="status_not_signed_in">Prisijunkite prie universiteto paskyros.</string>
+    <string name="status_no_calendar">Pasirinkite kalendorių sinchronizavimui.</string>
+    <string name="status_invalid_credentials">Universitetas nepriėmė prisijungimo vardo arba slaptažodžio. Atsijunkite ir prisijunkite iš naujo.</string>
+    <string name="status_calendar_missing">Pasirinkto kalendoriaus nebėra. Pasirinkite kitą.</string>
+    <string name="status_no_permission">Prieiga prie kalendoriaus buvo atšaukta. Suteikite ją iš naujo.</string>
+    <string name="status_protocol_error">Tvarkaraščių svetainė grąžino netikėtus duomenis. Gali reikėti atnaujinti programėlę.</string>
+    <string name="status_network_error">Nepavyko pasiekti tvarkarasciai.ku.lt. Bus bandoma dar kartą.</string>
+    <string name="status_server_error">Universiteto serveris veikia su trikdžiais. Bus bandoma dar kartą.</string>
+    <string name="status_failed">Sinchronizuoti nepavyko. Bus bandoma dar kartą.</string>
+
+    <!-- University account -->
+    <string name="section_account">Universiteto paskyra</string>
+    <string name="section_account_hint">Jūsų prisijungimas prie tvarkarasciai.ku.lt</string>
+    <string name="field_username">Prisijungimo vardas</string>
+    <string name="field_username_hint">vardenis.pavardenis</string>
+    <string name="field_password">Slaptažodis</string>
+    <string name="action_show_password">Rodyti</string>
+    <string name="action_hide_password">Slėpti</string>
+    <string name="action_sign_in">Prisijungti</string>
+    <string name="action_sign_out">Atsijungti</string>
+    <string name="signed_in_as">Prisijungta kaip %1$s</string>
+    <string name="credentials_storage_note">Slaptažodis šifruotas saugomas šiame telefone ir siunčiamas tik į tvarkarasciai.ku.lt.</string>
+    <string name="error_invalid_credentials">Neteisingas prisijungimo vardas arba slaptažodis.</string>
+    <string name="error_network">Nepavyko pasiekti tvarkarasciai.ku.lt. Patikrinkite interneto ryšį.</string>
+    <string name="error_server">Universiteto serveris veikia su trikdžiais. Bandykite vėliau.</string>
+    <string name="error_unknown">Prisijungti nepavyko: %1$s</string>
+    <string name="sign_out_confirm_title">Atsijungti?</string>
+    <string name="sign_out_confirm_text">Sinchronizavimas bus sustabdytas. Jau pridėti įvykiai liks kalendoriuje.</string>
+
+    <!-- Calendar -->
+    <string name="section_calendar">Google kalendorius</string>
+    <string name="section_calendar_hint">Paskaitos pridedamos į šį kalendorių ir per telefone esančią Google paskyrą patenka į Google kalendorių.</string>
+    <string name="calendar_permission_needed">Kad galėtų pridėti paskaitas, KULendar reikia prieigos prie kalendorių.</string>
+    <string name="calendar_permission_denied">Prieiga prie kalendorių neleista. Suteikite ją programėlės nustatymuose.</string>
+    <string name="action_grant_access">Suteikti prieigą</string>
+    <string name="calendar_none_selected">Kalendorius nepasirinktas</string>
+    <string name="action_choose_calendar">Pasirinkti kalendorių</string>
+    <string name="calendar_missing">Pasirinkto kalendoriaus nebėra. Pasirinkite kitą.</string>
+    <string name="calendar_sync_off">Paskyros %1$s kalendoriaus sinchronizavimas išjungtas, todėl įvykiai nepateks į Google kalendorių.</string>
+    <string name="action_open_sync_settings">Sinchronizavimo nustatymai</string>
+    <string name="calendar_not_synced">Šis kalendorius nesinchronizuojamas su telefonu. Įjunkite jį Google kalendoriaus programėlės nustatymuose.</string>
+    <string name="calendar_not_google">Šis kalendorius nepriklauso Google paskyrai, todėl jo įvykiai liks tik šiame telefone.</string>
+    <string name="choose_calendar_title">Pasirinkite kalendorių</string>
+    <string name="choose_calendar_empty">Nerasta Google kalendorių, kuriuos galėtumėte redaguoti. Pridėkite Google paskyrą telefono nustatymuose ir įjunkite kalendoriaus sinchronizavimą.</string>
+    <string name="choose_calendar_tip">Patarimas: calendar.google.com sukurkite atskirą kalendorių, pvz., „Universitetas“, kad paskaitos nesimaišytų su kitais įvykiais.</string>
+    <string name="show_all_calendars">Rodyti kitų paskyrų kalendorius</string>
+    <string name="move_events_title">Pakeisti kalendorių?</string>
+    <string name="move_events_text">KULendar į „%2$s“ pridėjo įvykių: %1$d. Pašalinti juos iš ten?</string>
+
+    <!-- Sync range -->
+    <string name="section_range">Sinchronizavimo intervalas</string>
+    <string name="range_past">Praeitis</string>
+    <string name="range_future">Ateitis</string>
+    <string name="range_summary">Paskaitos nuo %1$s iki %2$s</string>
+    <string name="range_note">Už intervalo ribų esantys įvykiai lieka kalendoriuje.</string>
+    <string name="range_past_title">Kiek laiko atgal sinchronizuoti</string>
+    <string name="range_future_title">Kiek laiko į priekį sinchronizuoti</string>
+    <string name="range_none">Nesinchronizuoti</string>
+    <string name="range_1_week">1 savaitė</string>
+    <string name="range_2_weeks">2 savaitės</string>
+    <string name="range_1_month">1 mėnuo</string>
+    <string name="range_2_months">2 mėnesiai</string>
+    <string name="range_3_months">3 mėnesiai</string>
+    <string name="range_4_months">4 mėnesiai</string>
+    <string name="range_6_months">6 mėnesiai</string>
+    <string name="range_1_year">1 metai</string>
+    <string name="range_custom">Kitas…</string>
+    <string name="range_custom_title">Dienų skaičius</string>
+    <string name="range_custom_label">Dienos (0–%1$d)</string>
+    <plurals name="days_count">
+        <item quantity="one">%d diena</item>
+        <item quantity="few">%d dienos</item>
+        <item quantity="many">%d dienos</item>
+        <item quantity="other">%d dienų</item>
+    </plurals>
+
+    <!-- Background sync -->
+    <string name="section_auto_sync">Sinchronizavimas fone</string>
+    <string name="auto_sync">Sinchronizuoti automatiškai</string>
+    <string name="auto_sync_hint">Kalendorius atnaujinamas net ir tada, kai programėlė uždaryta.</string>
+    <string name="sync_interval">Dažnumas</string>
+    <string name="sync_interval_title">Kaip dažnai sinchronizuoti</string>
+    <string name="interval_15_min">Kas 15 minučių</string>
+    <string name="interval_30_min">Kas 30 minučių</string>
+    <string name="interval_1_hour">Kas valandą</string>
+    <string name="interval_2_hours">Kas 2 valandas</string>
+    <string name="interval_3_hours">Kas 3 valandas</string>
+    <string name="interval_6_hours">Kas 6 valandas</string>
+    <string name="interval_12_hours">Kas 12 valandų</string>
+    <string name="interval_24_hours">Kartą per dieną</string>
+
+    <!-- Reliability -->
+    <string name="section_reliability">Nepertraukiamas sinchronizavimas</string>
+    <string name="section_reliability_hint">Taupydama bateriją, Android atideda arba sustabdo darbą fone. Sutvarkykite pažymėtus punktus, kad sinchronizavimas niekada nesustotų.</string>
+    <string name="battery_title">Baterijos optimizavimas</string>
+    <string name="battery_ok">Neribojama, sinchronizuojama laiku</string>
+    <string name="battery_bad">Optimizuojama, sinchronizavimas gali vėluoti kelias valandas</string>
+    <string name="restricted_title">Veikimas fone</string>
+    <string name="restricted_bad">Apribotas, sinchronizavimas fone užblokuotas</string>
+    <string name="hibernation_title">Pristabdyti nenaudojamos programėlės veiklą</string>
+    <string name="hibernation_ok">Išjungta, leidimai išsaugomi</string>
+    <string name="hibernation_bad">Įjungta, Android gali atimti prieigą prie kalendoriaus, jei ilgai neatidarysite programėlės</string>
+    <string name="notifications_title">Pranešimai</string>
+    <string name="notifications_ok">Leidžiami, sužinosite, jei sinchronizavimui reikės dėmesio</string>
+    <string name="notifications_bad">Išjungti, sinchronizavimo problemos liktų nepastebėtos</string>
+    <string name="oem_tip">%1$s telefonai gali sustabdyti programėles fone net ir su šiais nustatymais. Papildomi žingsniai aprašyti dontkillmyapp.com.</string>
+
+    <!-- History -->
+    <string name="section_history">Paskutiniai sinchronizavimai</string>
+    <string name="history_empty">Dar nesinchronizuota</string>
+    <string name="trigger_periodic">Automatinis</string>
+    <string name="trigger_manual">Rankinis</string>
+    <string name="trigger_settings_changed">Pakeisti nustatymai</string>
+    <string name="trigger_boot">Po paleidimo iš naujo</string>
+    <string name="trigger_app_updated">Po programėlės atnaujinimo</string>
+    <string name="history_counts">pridėta: %1$d · atnaujinta: %2$d · pašalinta: %3$d</string>
+
+    <!-- Maintenance -->
+    <string name="section_maintenance">Tvarkymas</string>
+    <string name="remove_events_hint">Ištrina visus KULendar pridėtus įvykius iš pasirinkto kalendoriaus.</string>
+    <string name="action_remove_events">Pašalinti sinchronizuotus įvykius</string>
+    <string name="remove_events_confirm_title">Pašalinti sinchronizuotus įvykius?</string>
+    <string name="remove_events_confirm_text">Bus ištrinti visi KULendar įvykiai iš „%1$s“. Automatinis sinchronizavimas juos vėl pridės, nebent jį išjungsite.</string>
+    <plurals name="events_removed">
+        <item quantity="one">Pašalintas %d įvykis</item>
+        <item quantity="few">Pašalinti %d įvykiai</item>
+        <item quantity="many">Pašalinta %d įvykio</item>
+        <item quantity="other">Pašalinta %d įvykių</item>
+    </plurals>
+
+    <!-- Calendar event texts -->
+    <string name="event_lecturer">Dėstytojas</string>
+    <string name="event_responsible">Atsakingas asmuo</string>
+    <string name="event_room">Auditorija</string>
+    <string name="event_online_meeting">Nuotolinė jungtis</string>
+    <string name="event_online">Nuotoliniu būdu</string>
+    <string name="event_not_approved">Dar nepatvirtinta</string>
+    <string name="event_synced_by">Sinchronizavo KULendar</string>
+
+    <!-- Notifications -->
+    <string name="channel_problems">Sinchronizavimo problemos</string>
+    <string name="channel_problems_description">Praneša, kai sinchronizavimui reikia jūsų dėmesio</string>
+    <string name="channel_progress">Vyksta sinchronizavimas</string>
+    <string name="notification_problem_title">KULendar negali sinchronizuoti</string>
+    <string name="notification_syncing">Sinchronizuojamas tvarkaraštis…</string>
+
+    <!-- App updates -->
+    <string name="section_updates">Programėlės atnaujinimai</string>
+    <string name="update_installed_version">Versija %1$s (%2$s)</string>
+    <string name="update_build_stable">stabili</string>
+    <string name="update_build_development">kūrimo</string>
+    <string name="update_build_local">sukurta vietoje</string>
+    <string name="update_built_from">Sukurta iš pakeitimo %1$s</string>
+    <string name="update_channel">Atnaujinimų kanalas</string>
+    <string name="update_channel_stable">Stabilus</string>
+    <string name="update_channel_development">Kūrimo</string>
+    <string name="update_channel_stable_hint">Master šakos leidimai.</string>
+    <string name="update_channel_development_hint">Kiekviena development šakos versija, taip pat stabilūs leidimai, kai jie naujesni. Šios versijos gali būti nebaigtos.</string>
+    <string name="update_auto_install">Atnaujinimus diegti automatiškai</string>
+    <string name="update_auto_install_hint">Naujos versijos atsisiunčiamos fone, kai nesinaudojate programėle. Android gali paprašyti patvirtinimo.</string>
+    <string name="update_permission_title">Atnaujinimų diegimas</string>
+    <string name="update_permission_text">Dar neleista, todėl KULendar negali įdiegti savo atnaujinimų</string>
+    <string name="update_checking">Ieškoma atnaujinimų…</string>
+    <string name="update_downloading">Atsisiunčiama %1$s… %2$d%%</string>
+    <string name="update_installing">Diegiama %1$s…</string>
+    <string name="update_available">Išleista nauja versija %1$s</string>
+    <string name="update_install">Įdiegti</string>
+    <string name="update_retry">Bandyti dar kartą</string>
+    <string name="update_whats_new">Kas naujo</string>
+    <string name="update_check">Ieškoti atnaujinimų</string>
+    <string name="update_open_releases">Atidaryti leidimus</string>
+    <string name="update_never_checked">Dar netikrinta</string>
+    <string name="update_up_to_date">Naujausia versija · patikrinta %1$s</string>
+    <string name="update_last_check_failed">Paskutinis patikrinimas nepavyko · %1$s</string>
+    <string name="update_ahead_of_channel">Ši versija naujesnė už naujausią šio kanalo leidimą (%1$s), todėl bus įdiegtas kitas naujesnis leidimas.</string>
+    <string name="update_error_network">Nepavyko pasiekti GitHub. Patikrinkite interneto ryšį.</string>
+    <string name="update_error_rate_limited">GitHub riboja užklausas. Bandykite vėliau.</string>
+    <string name="update_error_server">GitHub veikia su trikdžiais. Bandykite vėliau.</string>
+    <string name="update_error_protocol">Nepavyko perskaityti leidimo informacijos.</string>
+    <string name="update_error_verification">Atsisiųstas atnaujinimas nepraėjo patikros ir buvo ištrintas.</string>
+    <string name="update_error_signature">Ši KULendar kopija įdiegta ne iš GitHub leidimo, todėl negali pati atsinaujinti. Pašalinkite ją ir vieną kartą įdiekite naujausią leidimą.</string>
+    <string name="update_error_not_allowed">Pirmiausia leiskite KULendar diegti atnaujinimus.</string>
+    <string name="update_error_install">Android nepavyko įdiegti atnaujinimo.</string>
+    <string name="channel_updates">Programėlės atnaujinimai</string>
+    <string name="channel_updates_description">Naujos KULendar versijos</string>
+    <string name="notification_update_available">Išleista KULendar %1$s</string>
+    <string name="notification_update_available_text">Atidarykite KULendar, kad ją įdiegtumėte.</string>
+    <string name="notification_update_confirm">Palieskite, kad įdiegtumėte KULendar %1$s</string>
+    <string name="notification_update_confirm_text">Android reikia jūsų patvirtinimo.</string>
+    <string name="notification_update_failed">Nepavyko įdiegti KULendar %1$s</string>
+    <string name="notification_update_failed_text">Atidarykite KULendar ir bandykite dar kartą.</string>
+    <string name="notification_update_installed">KULendar atnaujinta į %1$s</string>
+</resources>

@@ -42,7 +42,8 @@ Xiaomi, Huawei, Samsung and some other phones have extra battery managers; the a
 Switch channels under **App updates**; a new install starts on the channel of the release you installed and stays
 there until you switch. The app checks every 6 hours and when it is opened. With **Install updates
 automatically** on, new versions are downloaded and installed while you are not using the app; otherwise you get a
-notification. Android may ask you to confirm an installation, at least the first time.
+notification. On Android 12 and newer, updates install without a confirmation prompt; older versions ask you to
+confirm each one.
 
 Before installing, the app verifies that the download matches the size and SHA-256 published with the release, that
 it is KULendar, that it is newer than the installed version, and that it is signed with the same key. Updates never go

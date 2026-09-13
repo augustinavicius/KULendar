@@ -67,6 +67,11 @@
     <string name="action_choose_calendar">Choose calendar</string>
     <string name="calendar_missing">The selected calendar no longer exists. Choose another one.</string>
     <string name="calendar_sync_off">Calendar sync is off for %1$s, so events won\'t reach Google Calendar.</string>
+    <string name="calendar_auto_sync_off">Auto-sync is off on this phone, so events won\'t reach Google Calendar.</string>
+    <plurals name="calendar_pending_uploads">
+        <item quantity="one">%1$d event hasn\'t been uploaded to %2$s yet. If this doesn\'t clear up, check that calendar sync is on for that account.</item>
+        <item quantity="other">%1$d events haven\'t been uploaded to %2$s yet. If this doesn\'t clear up, check that calendar sync is on for that account.</item>
+    </plurals>
     <string name="action_open_sync_settings">Sync settings</string>
     <string name="calendar_not_synced">This calendar is not synced to this phone. Turn it on in the Google Calendar app settings.</string>
     <string name="calendar_not_google">This calendar doesn\'t belong to a Google account, so its events stay on this phone.</string>

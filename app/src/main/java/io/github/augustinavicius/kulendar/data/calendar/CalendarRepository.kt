@@ -2,6 +2,7 @@ package io.github.augustinavicius.kulendar.data.calendar
 
 import android.Manifest
 import android.accounts.Account
+import android.accounts.AccountManager
 import android.content.ContentProviderOperation
 import android.content.ContentResolver
 import android.content.ContentUris
@@ -35,8 +36,12 @@ data class DeviceCalendar(
 ) {
     val isGoogle: Boolean get() = accountType == GOOGLE_ACCOUNT_TYPE
 
+    /** A calendar that exists only on this phone, with no account to upload to. */
+    val isLocal: Boolean get() = accountType == LOCAL_ACCOUNT_TYPE
+
     companion object {
         const val GOOGLE_ACCOUNT_TYPE = "com.google"
+        const val LOCAL_ACCOUNT_TYPE = CalendarContract.ACCOUNT_TYPE_LOCAL
     }
 }
 
@@ -48,6 +53,7 @@ class CalendarRepository(context: Context) {
 
     private val context = context.applicationContext
     private val resolver: ContentResolver get() = context.contentResolver
+    private val accountManager: AccountManager get() = AccountManager.get(context)
 
     fun hasPermission(): Boolean = PERMISSIONS.all {
         ContextCompat.checkSelfPermission(context, it) == PackageManager.PERMISSION_GRANTED
@@ -71,13 +77,35 @@ class CalendarRepository(context: Context) {
             ?.use { cursor -> if (cursor.moveToFirst()) cursor.toDeviceCalendar() else null }
     }
 
-    /** Whether Android uploads this calendar's changes. Local calendars have nothing to upload. */
-    fun isSyncEnabled(calendar: DeviceCalendar): Boolean {
-        if (calendar.accountType == CalendarContract.ACCOUNT_TYPE_LOCAL) return true
+    /**
+     * Why Android will not upload this calendar's changes, if that is known.
+     *
+     * Android reveals an account's own sync setting only to apps that can see the account, and reports it as off
+     * to everyone else. KULendar usually cannot see Google accounts, so that setting only counts for visible
+     * accounts; [pendingUploads] shows whether events actually leave the phone.
+     */
+    fun syncOffReason(calendar: DeviceCalendar): SyncOffReason? {
+        if (calendar.isLocal) return null
         return runCatching {
-            ContentResolver.getMasterSyncAutomatically() &&
-                ContentResolver.getSyncAutomatically(Account(calendar.accountName, calendar.accountType), CalendarContract.AUTHORITY)
-        }.getOrDefault(true)
+            val account = Account(calendar.accountName, calendar.accountType)
+            when {
+                !ContentResolver.getMasterSyncAutomatically() -> SyncOffReason.AUTO_SYNC_OFF
+                account in accountManager.getAccountsByType(calendar.accountType) &&
+                    !ContentResolver.getSyncAutomatically(account, CalendarContract.AUTHORITY) -> SyncOffReason.ACCOUNT_SYNC_OFF
+                else -> null
+            }
+        }.getOrNull()
+    }
+
+    /** How many KULendar events in the calendar carry changes that the account has not uploaded yet. */
+    suspend fun pendingUploads(calendarId: Long): Int = withContext(Dispatchers.IO) {
+        resolver.query(
+            Events.CONTENT_URI,
+            arrayOf(Events._ID),
+            "${Events.CALENDAR_ID} = ? AND ${Events.DELETED} = 0 AND ${Events.DIRTY} = 1 AND ${Events.DESCRIPTION} LIKE ?",
+            arrayOf(calendarId.toString(), EventMarker.LIKE_PATTERN),
+            null,
+        )?.use { it.count } ?: 0
     }
 
     /** All events KULendar created in the calendar, excluding ones already pending deletion. */

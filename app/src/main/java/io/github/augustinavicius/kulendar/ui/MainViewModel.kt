@@ -1,5 +1,9 @@
 package io.github.augustinavicius.kulendar.ui
 
+import android.database.ContentObserver
+import android.os.Handler
+import android.os.Looper
+import android.provider.CalendarContract
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider.AndroidViewModelFactory.Companion.APPLICATION_KEY
 import androidx.lifecycle.viewModelScope
@@ -7,7 +11,10 @@ import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
 import androidx.work.WorkInfo
 import io.github.augustinavicius.kulendar.KulendarApp
+import io.github.augustinavicius.kulendar.data.calendar.CalendarSyncNotice
 import io.github.augustinavicius.kulendar.data.calendar.DeviceCalendar
+import io.github.augustinavicius.kulendar.data.calendar.SyncOffReason
+import io.github.augustinavicius.kulendar.data.calendar.calendarSyncNotice
 import io.github.augustinavicius.kulendar.data.ku.KuInvalidCredentialsException
 import io.github.augustinavicius.kulendar.data.ku.KuNetworkException
 import io.github.augustinavicius.kulendar.data.ku.KuServerException
@@ -20,6 +27,8 @@ import io.github.augustinavicius.kulendar.sync.SyncScheduler
 import io.github.augustinavicius.kulendar.system.BackgroundHealth
 import io.github.augustinavicius.kulendar.system.BackgroundHealthChecker
 import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
@@ -47,7 +56,8 @@ data class DeviceState(
     val loaded: Boolean = false,
     val hasCalendarPermission: Boolean = false,
     val calendars: List<DeviceCalendar> = emptyList(),
-    val syncEnabledByCalendarId: Map<Long, Boolean> = emptyMap(),
+    val selectedSyncOff: SyncOffReason? = null,
+    val selectedPendingUploads: Int = 0,
     val health: BackgroundHealth = BackgroundHealth(),
 )
 
@@ -66,15 +76,19 @@ data class MainUiState(
     val work: SyncWorkState = SyncWorkState(),
     val transient: TransientState = TransientState(),
 ) {
-    val selectedCalendar: DeviceCalendar? = settings.calendar?.let { selected ->
-        device.calendars.firstOrNull {
-            it.id == selected.id && it.accountName == selected.accountName && it.accountType == selected.accountType
-        }
-    }
+    val selectedCalendar: DeviceCalendar? = device.calendars.matching(settings.calendar)
     val selectedCalendarMissing: Boolean
         get() = device.loaded && device.hasCalendarPermission && settings.calendar != null && selectedCalendar == null
+    val calendarSyncNotice: CalendarSyncNotice?
+        get() = selectedCalendar?.let { calendarSyncNotice(it, device.selectedSyncOff, device.selectedPendingUploads) }
     val isConfigured: Boolean
         get() = account != null && settings.calendar != null
+}
+
+private fun List<DeviceCalendar>.matching(selected: SelectedCalendar?): DeviceCalendar? = selected?.let {
+    firstOrNull { calendar ->
+        calendar.id == it.id && calendar.accountName == it.accountName && calendar.accountType == it.accountType
+    }
 }
 
 class MainViewModel(private val app: KulendarApp) : ViewModel() {
@@ -82,6 +96,8 @@ class MainViewModel(private val app: KulendarApp) : ViewModel() {
     private val container = app.container
     private val device = MutableStateFlow(DeviceState())
     private val transient = MutableStateFlow(TransientState())
+    private var eventsObserver: ContentObserver? = null
+    private var pendingUploadsRefresh: Job? = null
 
     val state: StateFlow<MainUiState> = combine(
         container.credentials.account,
@@ -99,15 +115,51 @@ class MainViewModel(private val app: KulendarApp) : ViewModel() {
             val calendars = container.calendars
             val hasPermission = calendars.hasPermission()
             val available = if (hasPermission) runCatching { calendars.writableCalendars() }.getOrDefault(emptyList()) else emptyList()
+            val selected = available.matching(container.settings.current().calendar)
             device.value = DeviceState(
                 loaded = true,
                 hasCalendarPermission = hasPermission,
                 calendars = available,
-                syncEnabledByCalendarId = available.associate { it.id to calendars.isSyncEnabled(it) },
+                selectedSyncOff = selected?.let { calendars.syncOffReason(it) },
+                selectedPendingUploads = selected?.let { pendingUploads(it) } ?: 0,
                 health = BackgroundHealthChecker.check(app),
             )
         }
     }
+
+    /** Keeps the count of events waiting for upload current while the screen is visible, so it clears once they upload. */
+    fun startWatchingCalendar() {
+        if (eventsObserver != null || !container.calendars.hasPermission()) return
+        val observer = object : ContentObserver(Handler(Looper.getMainLooper())) {
+            override fun onChange(selfChange: Boolean) = refreshPendingUploads()
+        }
+        runCatching { app.contentResolver.registerContentObserver(CalendarContract.Events.CONTENT_URI, true, observer) }
+            .onSuccess { eventsObserver = observer }
+    }
+
+    fun stopWatchingCalendar() {
+        eventsObserver?.let { app.contentResolver.unregisterContentObserver(it) }
+        eventsObserver = null
+        pendingUploadsRefresh?.cancel()
+    }
+
+    override fun onCleared() {
+        stopWatchingCalendar()
+    }
+
+    private fun refreshPendingUploads() {
+        pendingUploadsRefresh?.cancel()
+        pendingUploadsRefresh = viewModelScope.launch {
+            // A sync or an upload changes many events at once.
+            delay(CALENDAR_CHANGE_DEBOUNCE_MS)
+            val selected = device.value.calendars.matching(container.settings.current().calendar) ?: return@launch
+            val count = pendingUploads(selected)
+            device.update { it.copy(selectedPendingUploads = count) }
+        }
+    }
+
+    private suspend fun pendingUploads(calendar: DeviceCalendar): Int =
+        if (calendar.isLocal) 0 else runCatching { container.calendars.pendingUploads(calendar.id) }.getOrDefault(0)
 
     fun signIn(uid: String, password: String) {
         if (transient.value.signIn == SignInState.InProgress) return
@@ -174,6 +226,7 @@ class MainViewModel(private val app: KulendarApp) : ViewModel() {
         container.settings.setCalendar(
             SelectedCalendar(calendar.id, calendar.displayName, calendar.accountName, calendar.accountType),
         )
+        refreshDeviceState()
         onSyncSettingsChanged()
     }
 
@@ -230,6 +283,8 @@ class MainViewModel(private val app: KulendarApp) : ViewModel() {
     }
 
     companion object {
+        private const val CALENDAR_CHANGE_DEBOUNCE_MS = 1_000L
+
         val Factory = viewModelFactory {
             initializer { MainViewModel(this[APPLICATION_KEY] as KulendarApp) }
         }

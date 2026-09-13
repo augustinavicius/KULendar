@@ -65,6 +65,13 @@
     <string name="action_choose_calendar">Pasirinkti kalendorių</string>
     <string name="calendar_missing">Pasirinkto kalendoriaus nebėra. Pasirinkite kitą.</string>
     <string name="calendar_sync_off">Paskyros %1$s kalendoriaus sinchronizavimas išjungtas, todėl įvykiai nepateks į Google kalendorių.</string>
+    <string name="calendar_auto_sync_off">Automatinis sinchronizavimas šiame telefone išjungtas, todėl įvykiai nepateks į Google kalendorių.</string>
+    <plurals name="calendar_pending_uploads">
+        <item quantity="one">%1$d įvykis dar neįkeltas į %2$s. Jei tai neišnyks, patikrinkite, ar tos paskyros kalendoriaus sinchronizavimas įjungtas.</item>
+        <item quantity="few">%1$d įvykiai dar neįkelti į %2$s. Jei tai neišnyks, patikrinkite, ar tos paskyros kalendoriaus sinchronizavimas įjungtas.</item>
+        <item quantity="many">%1$d įvykio dar neįkelta į %2$s. Jei tai neišnyks, patikrinkite, ar tos paskyros kalendoriaus sinchronizavimas įjungtas.</item>
+        <item quantity="other">%1$d įvykių dar neįkelta į %2$s. Jei tai neišnyks, patikrinkite, ar tos paskyros kalendoriaus sinchronizavimas įjungtas.</item>
+    </plurals>
     <string name="action_open_sync_settings">Sinchronizavimo nustatymai</string>
     <string name="calendar_not_synced">Šis kalendorius nesinchronizuojamas su telefonu. Įjunkite jį Google kalendoriaus programėlės nustatymuose.</string>
     <string name="calendar_not_google">Šis kalendorius nepriklauso Google paskyrai, todėl jo įvykiai liks tik šiame telefone.</string>

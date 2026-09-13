@@ -55,8 +55,9 @@ fun MainScreen(
 
     LifecycleResumeEffect(Unit) {
         viewModel.refreshDeviceState()
+        viewModel.startWatchingCalendar()
         updatesViewModel.onResume()
-        onPauseOrDispose { }
+        onPauseOrDispose { viewModel.stopWatchingCalendar() }
     }
 
     var calendarPermissionDenied by rememberSaveable { mutableStateOf(false) }

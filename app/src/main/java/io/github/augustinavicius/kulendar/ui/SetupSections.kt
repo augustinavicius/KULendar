@@ -289,15 +289,13 @@ fun CalendarSection(
                         Text(stringResource(if (state.settings.calendar == null) R.string.action_choose_calendar else R.string.action_change))
                     }
                 }
+                val notice = state.calendarSyncNotice
                 when {
                     state.selectedCalendarMissing -> WarningText(stringResource(R.string.calendar_missing))
                     selected == null -> Unit
-                    device.syncEnabledByCalendarId[selected.id] == false -> {
-                        WarningText(stringResource(R.string.calendar_sync_off, selected.accountName))
-                        TextButton(onClick = onOpenSyncSettings) { Text(stringResource(R.string.action_open_sync_settings)) }
-                    }
                     !selected.syncEvents -> WarningText(stringResource(R.string.calendar_not_synced))
-                    !selected.isGoogle -> WarningText(stringResource(R.string.calendar_not_google))
+                    selected.isLocal -> WarningText(stringResource(R.string.calendar_not_google))
+                    notice != null -> CalendarSyncNoticeText(notice, selected.accountName, onOpenSyncSettings)
                 }
             }
         }

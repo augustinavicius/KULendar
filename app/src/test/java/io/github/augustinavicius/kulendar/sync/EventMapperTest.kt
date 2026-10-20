@@ -140,7 +140,17 @@ class EventMapperTest {
                 "Bring a laptop\n" +
                 "\n" +
                 "Synced by KULendar · kulendar-id:100879",
-            event.description,
+            EventMarker.withoutFingerprint(event.description),
+        )
+    }
+
+    @Test
+    fun `description carries the fingerprint of the fields it was written with`() {
+        val event = mapper.map(reservation())
+
+        assertEquals(
+            EventMarker.fingerprint(event.title, event.description, event.location),
+            EventMarker.extractFingerprint(event.description),
         )
     }
 

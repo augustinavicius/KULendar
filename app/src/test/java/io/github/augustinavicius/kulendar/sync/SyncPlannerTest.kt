@@ -8,16 +8,25 @@ class SyncPlannerTest {
 
     private val window = SyncWindow(startMillis = 1_000, endMillisExclusive = 10_000)
 
-    private fun spec(key: String, start: Long = 2_000, title: String = "Lecture $key") = EventSpec(
-        key = key,
-        title = title,
-        description = "Lecturer: Jonas\n\n${EventMarker.format(key)}",
-        location = "319 aud.",
-        startMillis = start,
-        endMillis = start + 500,
-        timeZone = "Europe/Vilnius",
-        tentative = false,
-    )
+    private fun spec(
+        key: String,
+        start: Long = 2_000,
+        title: String = "Lecture $key",
+        lecturer: String = "Jonas",
+        location: String = "319 aud.",
+    ): EventSpec {
+        val description = "Lecturer: $lecturer\n\n${EventMarker.format(key)}"
+        return EventSpec(
+            key = key,
+            title = title,
+            description = EventMarker.stamp(description, EventMarker.fingerprint(title, description, location)),
+            location = location,
+            startMillis = start,
+            endMillis = start + 500,
+            timeZone = "Europe/Vilnius",
+            tentative = false,
+        )
+    }
 
     private fun stored(id: Long, spec: EventSpec, syncId: String? = null) = ExistingEvent(
         id = id,
@@ -114,14 +123,60 @@ class SyncPlannerTest {
     }
 
     @Test
+    fun `fields edited by the user are kept while the rest follows the timetable`() {
+        val edited = stored(10, spec("1")).copy(title = "Algorithms", location = "Library")
+        val desired = spec("1", start = 3_000, title = "Lecture renamed", lecturer = "Petras", location = "320 aud.")
+
+        val update = SyncPlanner.plan(listOf(desired), listOf(edited), window).updates.single()
+
+        assertEquals("Algorithms", update.spec.title)
+        assertEquals("Library", update.spec.location)
+        assertEquals(desired.description, update.spec.description)
+        assertEquals(3_000L, update.spec.startMillis)
+    }
+
+    @Test
+    fun `an edited description is kept and its fingerprint refreshed`() {
+        val original = spec("1")
+        val notes = "My notes\n\n" + original.description
+        val edited = stored(10, original).copy(description = notes)
+        val desired = spec("1", lecturer = "Petras")
+
+        val update = SyncPlanner.plan(listOf(desired), listOf(edited), window).updates.single()
+
+        assertEquals(EventMarker.withoutFingerprint(notes), EventMarker.withoutFingerprint(update.spec.description))
+        assertEquals(EventMarker.extractFingerprint(desired.description), EventMarker.extractFingerprint(update.spec.description))
+        assertEquals(desired.title, update.spec.title)
+    }
+
+    @Test
+    fun `edited events stay unchanged on the next sync`() {
+        val edited = stored(10, spec("1")).copy(title = "Algorithms")
+
+        val plan = SyncPlanner.plan(listOf(spec("1")), listOf(edited), window)
+
+        assertEquals(1, plan.unchanged)
+    }
+
+    @Test
+    fun `events written before edit tracking are fully updated`() {
+        val legacy = stored(10, spec("1")).let { it.copy(description = EventMarker.withoutFingerprint(it.description), title = "Old") }
+
+        val update = SyncPlanner.plan(listOf(spec("1")), listOf(legacy), window).updates.single()
+
+        assertEquals(spec("1"), update.spec)
+    }
+
+    @Test
     fun `applying a plan makes the next plan empty`() {
         val calendar = mutableMapOf(
-            10L to stored(10, spec("1", title = "Old title")),
+            10L to stored(10, spec("1", start = 3_000)),
+            14L to stored(14, spec("4")).copy(title = "My title"),
             11L to stored(11, spec("2")),
             12L to stored(12, spec("2")),
             13L to stored(13, spec("cancelled", start = 6_000)),
         )
-        val desired = listOf(spec("1"), spec("2"), spec("3", start = 9_000))
+        val desired = listOf(spec("1"), spec("2"), spec("3", start = 9_000), spec("4", lecturer = "Petras"))
 
         val first = SyncPlanner.plan(desired, calendar.values, window)
         first.deletes.forEach { calendar.remove(it.id) }

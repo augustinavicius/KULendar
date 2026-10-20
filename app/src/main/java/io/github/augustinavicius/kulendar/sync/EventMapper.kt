@@ -26,11 +26,14 @@ class EventMapper(private val labels: EventLabels, private val zone: ZoneId = UN
         val end = parseDateTime(reservation.to).takeIf { it.isAfter(start) }
             ?: start.plusMinutes((reservation.duration ?: DEFAULT_DURATION_MINUTES).coerceAtLeast(1).toLong())
         val key = reservation.id.toString()
+        val title = reservation.name.trim()
+        val description = description(reservation, key)
+        val location = location(reservation)
         return EventSpec(
             key = key,
-            title = reservation.name.trim(),
-            description = description(reservation, key),
-            location = location(reservation),
+            title = title,
+            description = EventMarker.stamp(description, EventMarker.fingerprint(title, description, location)),
+            location = location,
             startMillis = start.toInstant().toEpochMilli(),
             endMillis = end.toInstant().toEpochMilli(),
             timeZone = zone.id,

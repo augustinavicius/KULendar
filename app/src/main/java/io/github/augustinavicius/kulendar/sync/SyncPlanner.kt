@@ -10,6 +10,7 @@ object SyncPlanner {
      *   kept is chosen by server id first, so phones syncing into the same Google calendar agree on it.
      * - An event whose reservation disappeared is removed only if it starts inside [window] and
      *   [allowRemovals] is set. Events outside the window are history and stay untouched.
+     * - A title, description or location the user edited is kept; times and status still follow the timetable.
      */
     fun plan(
         desired: Collection<EventSpec>,
@@ -32,7 +33,8 @@ object SyncPlanner {
             }
             val keeper = copies.first()
             deletes += copies.drop(1)
-            if (keeper.matches(spec)) unchanged++ else updates += EventUpdate(keeper, spec)
+            val target = spec.keepingEditsOf(keeper)
+            if (keeper.matches(target)) unchanged++ else updates += EventUpdate(keeper, target)
         }
         for ((key, copies) in existingByKey) {
             if (key in desiredByKey) continue
@@ -45,6 +47,25 @@ object SyncPlanner {
             }
         }
         return SyncPlan(inserts, updates, deletes, unchanged)
+    }
+
+    /**
+     * Keeps the fields of [event] that differ from what KULendar last wrote into it. Events without a
+     * fingerprint predate edit tracking and only ever held KULendar's values, so they are fully updated.
+     */
+    internal fun EventSpec.keepingEditsOf(event: ExistingEvent): EventSpec {
+        val written = EventMarker.extractFingerprint(event.description) ?: return this
+        val wanted = EventMarker.extractFingerprint(description) ?: return this
+        val current = EventMarker.fingerprint(event.title, event.description, event.location)
+        return copy(
+            title = if (current.title != written.title) event.title.orEmpty() else title,
+            description = if (current.description != written.description) {
+                EventMarker.stamp(event.description.orEmpty(), wanted)
+            } else {
+                description
+            },
+            location = if (current.location != written.location) event.location.orEmpty() else location,
+        )
     }
 
     internal fun ExistingEvent.matches(spec: EventSpec): Boolean =

@@ -12,6 +12,7 @@ Google Calendar of your choice. It runs in the background, survives reboots and 
 - Automatic background sync every 15 minutes to once a day, plus "Sync now".
 - Lecture title, time (Europe/Vilnius), room and address, lecturer, and the Teams link for online lectures.
 - Rescheduled lectures are moved, cancelled lectures removed, and your own events never touched.
+- Edit a lecture's title, description or location in Google Calendar and KULendar keeps your version.
 - A checklist that fixes everything Android uses to stop background work: battery optimization, background restriction and "pause app activity if unused".
 - A notification when syncing needs your attention, e.g. after a password change.
 - Updates itself from GitHub releases, on the Stable or Development channel.
@@ -70,6 +71,11 @@ tvarkarasciai.ku.lt ──(mobile API)──▶ KULendar ──▶ Android calen
   - an event is removed only if its lecture disappeared **and** it lies inside the sync range. Anything
     outside the range is kept as history;
   - if the download looks incomplete (fewer lectures than the server announced), nothing is removed.
+- **Your edits.** Next to the id, `kulendar-sum:<title>.<description>.<location>` holds short hashes of the
+  values KULendar wrote. A field that no longer matches its hash was edited by you and is never overwritten;
+  the time and status still follow the timetable, and a cancelled lecture is still removed. Change a field back
+  to the timetable's value and it is synced again. When editing the description, keep its last line
+  (`kulendar-id:… · kulendar-sum:…`): without it the event is no longer recognized and a new copy is created.
 - **Background sync.** WorkManager runs the sync periodically whenever there is a network connection, retries
   failures with backoff, and keeps the schedule across reboots and app updates. With the battery optimization
   exemption, the job also runs while the phone is in Doze.

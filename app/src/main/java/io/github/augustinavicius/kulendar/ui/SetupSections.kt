@@ -49,6 +49,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.contentType
@@ -293,11 +294,19 @@ fun CalendarSection(
                     state.selectedCalendarMissing -> WarningText(stringResource(R.string.calendar_missing))
                     selected == null -> Unit
                     device.syncEnabledByCalendarId[selected.id] == false -> {
-                        WarningText(stringResource(R.string.calendar_sync_off, selected.accountName))
+                        WarningText(stringResource(R.string.calendar_sync_off))
                         TextButton(onClick = onOpenSyncSettings) { Text(stringResource(R.string.action_open_sync_settings)) }
                     }
                     !selected.syncEvents -> WarningText(stringResource(R.string.calendar_not_synced))
                     !selected.isGoogle -> WarningText(stringResource(R.string.calendar_not_google))
+                    else -> device.pendingUploadsByCalendarId[selected.id]?.takeIf { it > 0 }?.let { pending ->
+                        Text(
+                            pluralStringResource(R.plurals.calendar_pending_uploads, pending, pending, selected.accountName),
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        )
+                        TextButton(onClick = onOpenSyncSettings) { Text(stringResource(R.string.action_open_sync_settings)) }
+                    }
                 }
             }
         }

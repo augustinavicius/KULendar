@@ -1,5 +1,9 @@
 package io.github.augustinavicius.kulendar.ui
 
+import android.database.ContentObserver
+import android.os.Handler
+import android.os.Looper
+import android.provider.CalendarContract
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider.AndroidViewModelFactory.Companion.APPLICATION_KEY
 import androidx.lifecycle.viewModelScope
@@ -20,6 +24,8 @@ import io.github.augustinavicius.kulendar.sync.SyncScheduler
 import io.github.augustinavicius.kulendar.system.BackgroundHealth
 import io.github.augustinavicius.kulendar.system.BackgroundHealthChecker
 import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
@@ -48,6 +54,8 @@ data class DeviceState(
     val hasCalendarPermission: Boolean = false,
     val calendars: List<DeviceCalendar> = emptyList(),
     val syncEnabledByCalendarId: Map<Long, Boolean> = emptyMap(),
+    /** Changes not yet uploaded by the selected calendar's sync adapter, keyed by calendar id. */
+    val pendingUploadsByCalendarId: Map<Long, Int> = emptyMap(),
     val health: BackgroundHealth = BackgroundHealth(),
 )
 
@@ -83,6 +91,26 @@ class MainViewModel(private val app: KulendarApp) : ViewModel() {
     private val device = MutableStateFlow(DeviceState())
     private val transient = MutableStateFlow(TransientState())
 
+    /** Refreshes the pending upload count while the sync adapter uploads, and after KULendar's own syncs. */
+    private val calendarObserver = object : ContentObserver(Handler(Looper.getMainLooper())) {
+        override fun onChange(selfChange: Boolean) {
+            calendarChangeRefresh?.cancel()
+            calendarChangeRefresh = viewModelScope.launch {
+                delay(CALENDAR_CHANGE_DEBOUNCE_MILLIS)
+                refreshDeviceState()
+            }
+        }
+    }
+    private var calendarChangeRefresh: Job? = null
+
+    init {
+        runCatching { app.contentResolver.registerContentObserver(CalendarContract.Events.CONTENT_URI, true, calendarObserver) }
+    }
+
+    override fun onCleared() {
+        app.contentResolver.unregisterContentObserver(calendarObserver)
+    }
+
     val state: StateFlow<MainUiState> = combine(
         container.credentials.account,
         container.settings.settings,
@@ -99,11 +127,14 @@ class MainViewModel(private val app: KulendarApp) : ViewModel() {
             val calendars = container.calendars
             val hasPermission = calendars.hasPermission()
             val available = if (hasPermission) runCatching { calendars.writableCalendars() }.getOrDefault(emptyList()) else emptyList()
+            val selected = container.settings.current().calendar?.id?.takeIf { id -> available.any { it.id == id } }
+            val pending = selected?.let { id -> runCatching { calendars.pendingUploads(id) }.getOrNull()?.let { mapOf(id to it) } }
             device.value = DeviceState(
                 loaded = true,
                 hasCalendarPermission = hasPermission,
                 calendars = available,
                 syncEnabledByCalendarId = available.associate { it.id to calendars.isSyncEnabled(it) },
+                pendingUploadsByCalendarId = pending.orEmpty(),
                 health = BackgroundHealthChecker.check(app),
             )
         }
@@ -233,5 +264,7 @@ class MainViewModel(private val app: KulendarApp) : ViewModel() {
         val Factory = viewModelFactory {
             initializer { MainViewModel(this[APPLICATION_KEY] as KulendarApp) }
         }
+
+        private const val CALENDAR_CHANGE_DEBOUNCE_MILLIS = 500L
     }
 }

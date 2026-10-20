@@ -1,7 +1,6 @@
 package io.github.augustinavicius.kulendar.data.calendar
 
 import android.Manifest
-import android.accounts.Account
 import android.content.ContentProviderOperation
 import android.content.ContentResolver
 import android.content.ContentUris
@@ -71,13 +70,26 @@ class CalendarRepository(context: Context) {
             ?.use { cursor -> if (cursor.moveToFirst()) cursor.toDeviceCalendar() else null }
     }
 
-    /** Whether Android uploads this calendar's changes. Local calendars have nothing to upload. */
+    /**
+     * Whether Android uploads this calendar's changes. Local calendars have nothing to upload.
+     *
+     * Only the phone-wide auto-sync switch can be checked: since Android 13, the per-account setting of an
+     * account the app has no access to always reads as off, so it would raise false alarms.
+     */
     fun isSyncEnabled(calendar: DeviceCalendar): Boolean {
         if (calendar.accountType == CalendarContract.ACCOUNT_TYPE_LOCAL) return true
-        return runCatching {
-            ContentResolver.getMasterSyncAutomatically() &&
-                ContentResolver.getSyncAutomatically(Account(calendar.accountName, calendar.accountType), CalendarContract.AUTHORITY)
-        }.getOrDefault(true)
+        return runCatching { ContentResolver.getMasterSyncAutomatically() }.getOrDefault(true)
+    }
+
+    /** KULendar changes in the calendar that its sync adapter has not uploaded yet, including removals. */
+    suspend fun pendingUploads(calendarId: Long): Int = withContext(Dispatchers.IO) {
+        resolver.query(
+            Events.CONTENT_URI,
+            arrayOf(Events._ID),
+            "${Events.CALENDAR_ID} = ? AND ${Events.DIRTY} = 1 AND ${Events.DESCRIPTION} LIKE ?",
+            arrayOf(calendarId.toString(), EventMarker.LIKE_PATTERN),
+            null,
+        )?.use { it.count } ?: 0
     }
 
     /** All events KULendar created in the calendar, excluding ones already pending deletion. */
